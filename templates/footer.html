@@ -1,0 +1,20 @@
+<html>
+<head>
+    <title> Home </title>
+</head>
+<body>
+
+    {% if message %}
+    {{message}} <br>
+    {% endif %}
+
+    {% if list %}
+    {% for l in list %}
+    {{l}} <br>
+    {% endfor %}
+    {% endif %}
+    <a href = "http://localhost:5000/clear/">clear</a><br>
+    <a href = "http://localhost:5000/index/">index</a> <br>
+    <a href = "http://localhost:5000/search/">search</a>
+</body>
+</html>
