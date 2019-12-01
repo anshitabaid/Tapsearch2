@@ -4,7 +4,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
 
-
+#set up database
 project_dir=os.path.dirname(os.path.abspath(__file__))
 database_file="sqlite:///{}".format(os.path.join(project_dir, "tapsearch.db"))
 
@@ -15,15 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 
-
-#format of dictionary : (key, value) == (UID, paragraph)
-dictionary={}
-
-#format of word_dict: (key, value) == (word, list containing UID of paragraphs the word appears in)
-word_dict={}
-
-
-
+#contains UID for each paragraph, and the paragraph itself
 class Paragraphs (db.Model):
     uid = db.Column (db.Integer, primary_key = True)
     paragraph=db.Column(db.Text())
@@ -31,6 +23,7 @@ class Paragraphs (db.Model):
         self.paragraph=paragraph
         self.uid=uid
 
+#contains the word, and a space separated string of UID of paragraphs the word appears in
 class Words (db.Model):
     uid = db.Column (db.Integer, primary_key = True)
     word=db.Column(db.Text())
@@ -67,6 +60,7 @@ def index_process():
     #assign index
     for i in range (0,len(paragraphs), 2):
         ind = int (i/2)
+        #add paragraph and UID to database
         db.session.add (Paragraphs(paragraphs[i], ind))
         db.session.commit()
 
@@ -109,7 +103,7 @@ def search_process():
         #delete the last element as it is only a space character
         ls=ls[:-1]
         paras_list=[]
-
+        #display corresponding paragraph for each UID of the paragraph the word appears in
         for i in range (min(10, len(ls))):
             uid=int(ls[i])
             paragraph=Paragraphs.query.filter_by(uid=uid).first()
