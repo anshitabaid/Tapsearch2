@@ -109,9 +109,9 @@ def search_process():
         #delete the last element as it is only a space character
         ls=ls[:-1]
         paras_list=[]
-        for num in ls:
-            print (num)
-            uid=int(num)
+
+        for i in range (min(10, len(ls))):
+            uid=int(ls[i])
             paragraph=Paragraphs.query.filter_by(uid=uid).first()
             paras_list.append(paragraph.paragraph)
         return render_template('footer.html', list = paras_list)
