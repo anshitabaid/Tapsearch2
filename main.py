@@ -44,6 +44,14 @@ def index():
     clear()
     return render_template ("index.html", result=word_dict)
 
+#method to format the word: lowercase and remove special chars
+def format(w):
+    w=w.lower()
+    badchars=['.', ',', ';', '!', '(', ')']
+    for i in badchars:
+        w=w.replace (i, '')
+    return w
+
 #this route indexes the paragraphs and words
 @app.route('/index_process/', methods = ['POST'])
 def index_process():
@@ -60,7 +68,7 @@ def index_process():
 
         words=paragraphs[i].split()
         for w in words:
-            w=w.lower ()
+            w=format (w)
             if w in word_dict:
                 #to prevent repition in same paragraph
                 if ind not in word_dict[w]: 
