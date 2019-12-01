@@ -2,6 +2,8 @@ from flask import Flask, request, render_template
 import json
 import os
 from flask_sqlalchemy import SQLAlchemy
+from flask_heroku import Heroku
+
 
 project_dir=os.path.dirname(os.path.abspath(__file__))
 database_file="sqlite:///{}".format(os.path.join(project_dir, "tapsearch.db"))
@@ -9,6 +11,8 @@ database_file="sqlite:///{}".format(os.path.join(project_dir, "tapsearch.db"))
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+heroku = Heroku(app)
 db = SQLAlchemy(app)
 
 
