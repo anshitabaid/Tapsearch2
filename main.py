@@ -39,7 +39,7 @@ def home ():
 @app.route ("/index/")
 def index():
     clear()
-    return render_template ("index.html", result=word_dict)
+    return render_template ("index.html")
 
 #method to format the word: lowercase and remove special chars
 def format(w):
