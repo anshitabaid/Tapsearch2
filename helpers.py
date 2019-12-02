@@ -12,7 +12,7 @@ def allowed_file(filename):
 #method to format the word: lowercase and remove special chars
 def format(w):
     w=w.lower()
-    badchars=['.', ',', ';', '!', '(', ')']
+    badchars=['.', ',', ';', '!', '(', ')', '\'']
     for i in badchars:
         w=w.replace (i, '')
     return w
