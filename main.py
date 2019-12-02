@@ -3,17 +3,22 @@ import json
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
-
+from werkzeug.utils import secure_filename
+from helpers import *
 #set up database
 project_dir=os.path.dirname(os.path.abspath(__file__))
 database_file="sqlite:///{}".format(os.path.join(project_dir, "tapsearch.db"))
+upload_folder = project_dir + '/uploads/'
+allowed_extensions={'pdf'}
 
 app = Flask(__name__)
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_file
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER']=upload_folder
 heroku = Heroku(app)
 db = SQLAlchemy(app)
+
 
 #contains UID for each paragraph, and the paragraph itself
 class Paragraphs (db.Model):
@@ -32,6 +37,7 @@ class Words (db.Model):
         self.word=word
         self.uids=uids
 
+
 @app.route ("/")
 def home ():
     return render_template ("footer.html")
@@ -41,27 +47,31 @@ def index():
     clear()
     return render_template ("index.html")
 
-#method to format the word: lowercase and remove special chars
-def format(w):
-    w=w.lower()
-    badchars=['.', ',', ';', '!', '(', ')']
-    for i in badchars:
-        w=w.replace (i, '')
-    return w
 
 #this route indexes the paragraphs and words
 @app.route('/index_process/', methods = ['POST'])
 def index_process():
-    text=request.form['Text']
-    paragraphs=text.splitlines()
+    text = ''
+    #check if pdf was uploaded
+    if request.files['file']:
+        file=request.files['file']
+        if allowed_file (file.filename):
+            filename=secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            text=convert_pdf_to_txt(upload_folder +  filename)
+    #no file was uploaded
+    else:
+        text=request.form['Text']
+    paragraphs=text.split('\r\n\r\n')
     word_dict={}
-    #Note: Since splitlines splits only at '\n'
-    #Every alternate string should be an empty string
-    #assign index
-    for i in range (0,len(paragraphs), 2):
-        ind = int (i/2)
+
+    for i in range (0,len(paragraphs)):
+        if  paragraphs[i]==' ' or paragraphs[i]=='\r' or paragraphs[i]=='\r\n' or paragraphs[i]=='':
+            continue
+        print (paragraphs[i])
+        print ('....')
         #add paragraph and UID to database
-        db.session.add (Paragraphs(paragraphs[i], ind))
+        db.session.add (Paragraphs(paragraphs[i], i))
         db.session.commit()
 
         words=paragraphs[i].split()
@@ -69,10 +79,10 @@ def index_process():
             w=format (w)
             if w in word_dict:
                 #to prevent repition in same paragraph
-                if ind not in word_dict[w]: 
-                    word_dict[w].append(ind)
+                if i not in word_dict[w]: 
+                    word_dict[w].append(i)
             else:
-                word_dict[w]=[ind]
+                word_dict[w]=[i]
     #store all the UIDs in a string format
     for key, value in word_dict.items ():
         l=''
