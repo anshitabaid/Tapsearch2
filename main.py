@@ -3,10 +3,14 @@ import json
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
-
+from werkzeug.utils import secure_filename
+from models import *
+from helpers import *
 #set up database
 project_dir=os.path.dirname(os.path.abspath(__file__))
 database_file="sqlite:///{}".format(os.path.join(project_dir, "tapsearch.db"))
+upload_folder = project_dir + '/uploads/'
+allowed_extensions={'pdf'}
 
 app = Flask(__name__)
 
@@ -15,22 +19,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 
-#contains UID for each paragraph, and the paragraph itself
-class Paragraphs (db.Model):
-    uid = db.Column (db.Integer, primary_key = True)
-    paragraph=db.Column(db.Text())
-    def __init__(self, paragraph, uid):
-        self.paragraph=paragraph
-        self.uid=uid
-
-#contains the word, and a space separated string of UID of paragraphs the word appears in
-class Words (db.Model):
-    uid = db.Column (db.Integer, primary_key = True)
-    word=db.Column(db.Text())
-    uids=db.Column(db.Text())
-    def __init__ (self,word, uids):
-        self.word=word
-        self.uids=uids
 
 @app.route ("/")
 def home ():
@@ -41,13 +29,6 @@ def index():
     clear()
     return render_template ("index.html", result=word_dict)
 
-#method to format the word: lowercase and remove special chars
-def format(w):
-    w=w.lower()
-    badchars=['.', ',', ';', '!', '(', ')']
-    for i in badchars:
-        w=w.replace (i, '')
-    return w
 
 #this route indexes the paragraphs and words
 @app.route('/index_process/', methods = ['POST'])
