@@ -127,6 +127,4 @@ def clear():
     return render_template ('footer.html', message = 'Index cleared')
 
 if __name__ == '__main__':
-    db.drop_all()
-    db.create_all()
     app.run ()
