@@ -4,16 +4,16 @@
 </head>
 <body>
     Enter text here
-    <form action="https://fathomless-sands-50399.herokuapp.com/index_process/" method="post">
+    <form action="http://localhost:5000/index_process/" method="post" enctype=multipart/form-data>
         <textarea name="Text"></textarea>
         <br>
-        <input type = "file">
+        <input type = "file" name  = "file">
         <br>
         <input type = "submit">
     </form>
     <br>
-    <a href = "https://fathomless-sands-50399.herokuapp.com/clear/">clear</a><br>
-    <a href = "https://fathomless-sands-50399.herokuapp.com/index/">index</a> <br>
-    <a href = "https://fathomless-sands-50399.herokuapp.com/search/">search</a>
+    <a href = "http://localhost:5000/clear/">clear</a><br>
+    <a href = "http://localhost:5000/index/">index</a> <br>
+    <a href = "http://localhost:5000/search/">search</a>
 </body>
 </html>
